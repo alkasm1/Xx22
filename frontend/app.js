@@ -1,6 +1,6 @@
 // frontend/app.js
 
-const ws = new WebSocket("ws://localhost:8080");
+import { connectWS } from "./ws_client.js";
 
 const metricsEl = document.getElementById("metrics");
 const devicesEl = document.getElementById("devices");
@@ -29,13 +29,7 @@ function renderDevices(devices) {
   });
 }
 
-ws.onopen = () => {
-  log("🟢 Connected to Gateway");
-};
-
-ws.onmessage = (e) => {
-  const msg = JSON.parse(e.data);
-
+function handleMessage(msg) {
   if (msg.type === "snapshot") {
     metricsEl.textContent = JSON.stringify(msg.metrics, null, 2);
     renderDevices(msg.devices);
@@ -65,78 +59,7 @@ ws.onmessage = (e) => {
   if (msg.type === "job.done") {
     log(`✅ Job ${msg.job.jobId} DONE`);
   }
-};
-
-/* =========================
-   SEND COMMANDS (UNICAST)
-========================= */
-
-function sendCommand(cmd) {
-  ws.send(JSON.stringify({
-    type: "command",
-    ...cmd
-  }));
 }
 
-window.sendSetFreq = function () {
-  const deviceId = prompt("Device ID:");
-  if (!deviceId) return;
-
-  sendCommand({
-    command: "SET_FREQ",
-    deviceId: Number(deviceId),
-    params: {
-      freqMHz: 5805,
-      bandwidth: 40,
-      txPower: 20
-    }
-  });
-};
-
-window.sendReboot = function () {
-  const deviceId = prompt("Device ID:");
-  if (!deviceId) return;
-
-  sendCommand({
-    command: "REBOOT",
-    deviceId: Number(deviceId),
-    params: { delay: 2 }
-  });
-};
-
-/* =========================
-   BROADCAST COMMANDS
-========================= */
-
-function sendBroadcast(cmd) {
-  ws.send(JSON.stringify({
-    type: "broadcast",
-    ...cmd
-  }));
-}
-
-window.broadcastSetFreq = function () {
-  const groupId = prompt("Group ID:");
-  if (!groupId) return;
-
-  sendBroadcast({
-    command: "SET_FREQ",
-    groupId: Number(groupId),
-    params: {
-      freqMHz: 5805,
-      bandwidth: 40,
-      txPower: 20
-    }
-  });
-};
-
-window.broadcastReboot = function () {
-  const groupId = prompt("Group ID:");
-  if (!groupId) return;
-
-  sendBroadcast({
-    command: "REBOOT",
-    groupId: Number(groupId),
-    params: { delay: 2 }
-  });
-};
+// 🔥 تشغيل WebSocket باستخدام hostname الصحيح
+connectWS(handleMessage);
