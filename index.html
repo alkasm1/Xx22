@@ -15,6 +15,18 @@
 
 <body>
 
+<!-- 🔥 مؤشر حالة WebSocket -->
+<div id="wsStatus" style="
+  padding:10px;
+  font-size:18px;
+  font-weight:bold;
+  background:#222;
+  color:#fff;
+  margin-bottom:15px;
+  border-radius:6px;">
+  WS: ⏳ connecting...
+</div>
+
 <h1>📡 Alm Control Dashboard</h1>
 
 <h2>📊 Metrics</h2>
@@ -43,9 +55,10 @@
 <button onclick="broadcastReboot()">Broadcast Reboot</button>
 
 <h2>📜 Alm</h2>
-<pre id="Alm"></pre>
+<pre id="logs"></pre>
 
-<script src="frontend/app.js"></script>
+<!-- 🔥 تحميل الواجهة -->
+<script type="module" src="frontend/app.js"></script>
 
 </body>
 </html>
